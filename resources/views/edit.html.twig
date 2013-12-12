@@ -12,8 +12,10 @@
         </div>
         <div class="col-sm-4 well well-sm">
             {%for locale,h in help%}
-            <p><strong>{{locale}}:</strong> {{h[key] | raw}}</p>
-            <hr/>
+                {%if h[key] is defined%}
+                    <p><strong>{{locale}}:</strong> {{h[key] | raw}}</p>
+                    <hr/>
+                {%endif%}
             {%endfor%}
         </div>
     </div>
