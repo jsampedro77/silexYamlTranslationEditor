@@ -43,13 +43,28 @@ $app->match('/edit/{file}', function($file) use ($app) {
     }
 
     $explodedFilename = explode(".", $file);
-    $app['session']->set('space', $explodedFilename[0]);
-    $app['session']->set('locale', $explodedFilename[1]);
+    $space = $explodedFilename[0];
+    $locale = $explodedFilename[1];
+    $app['session']->set('space', $space);
+    $app['session']->set('locale', $locale);
+
+    $finder = new Finder();
+    $finder->files()->in($app['translations.folder'])->name('*.yml');
+    $help = array();
+    foreach ($finder as $file) {
+        $explodedFilename = explode(".", $file->getFilename());
+        if ($explodedFilename[0] == $space && $explodedFilename[1] != $locale) {
+            $help[$explodedFilename[1]] = Yaml::parse($file->getPathname());
+        }
+    }
 
     $lines = Yaml::parse($filepath);
+
     return $app['twig']->render('edit.html.twig', array(
                 'file' => $file,
-                'lines' => $lines));
+                'lines' => $lines,
+                'help' => $help
+    ));
 })->bind('edit');
 
 $app->post('/save', function(Request $request) use ($app) {
